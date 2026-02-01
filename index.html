@@ -8,19 +8,20 @@
 <style>
 :root {
   --primary-yellow: #fcc419;
-  --bg-white: #ffffff;
+  --bg-light: #f4f4f9;
   --seat-red: #ff4d4d;
   --seat-blue: #3b5998;
   --seat-green: #2ecc71;
-  --car-border: #888;
+  --text-main: #333;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, sans-serif;
-  background-color: #f0f0f0;
-  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-main);
+  overflow-x: hidden;
 }
 
 /* Header */
@@ -28,51 +29,55 @@ body {
   background: white;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.header-title { font-weight: 600; font-size: 18px; flex-grow: 1; text-align: center; }
+.header-title { flex-grow: 1; text-align: center; font-weight: bold; font-size: 18px; }
 
 /* Page Control */
-.page { display: none; height: calc(100vh - 50px); flex-direction: column; align-items: center; }
+.page { display: none; padding-bottom: 120px; flex-direction: column; align-items: center; }
 .page.active { display: flex; }
 
-/* --- PAGE 1: ENTRY --- */
-.entry-container { padding: 20px; text-align: center; width: 100%; box-sizing: border-box; }
-.welcome-box { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
-.welcome-title { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
-.name-color { color: var(--primary-yellow); }
-.code-input { width: 80%; padding: 15px; font-size: 24px; text-align: center; border-radius: 12px; border: 1px solid #ddd; margin: 15px 0; }
-.btn-join { background: var(--primary-yellow); width: 85%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; }
-
-/* --- PAGE 2: CAR LAYOUT --- */
-.car-body {
-  background: #e0e0e0;
-  width: 320px;
-  height: 80vh;
-  margin-top: 10px;
-  border: 3px solid var(--car-border);
-  border-radius: 60px 60px 20px 20px;
-  position: relative;
-  padding: 60px 10px 20px 10px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-  gap: 10px;
-  box-sizing: border-box;
+/* Route & Price Info Box */
+.info-card {
+  background: white;
+  width: 90%;
+  margin-top: 15px;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.route-row { display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; color: #666; }
+.price-input-row { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; }
+.price-input-row input { 
+    width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold;
 }
 
-/* Glass Windshield Effect */
-.car-body::before {
-  content: "";
-  position: absolute;
-  top: 15px;
-  left: 10%;
-  width: 80%;
-  height: 15px;
-  background: #555;
-  border-radius: 10px;
+/* --- CAR VECTOR DESIGN --- */
+.car-frame {
+  background: #ffffff;
+  width: 310px;
+  margin-top: 20px;
+  border: 4px solid #444;
+  border-radius: 70px 70px 30px 30px;
+  position: relative;
+  padding: 50px 15px 25px 15px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  box-shadow: 0 10px 0 #bbb;
+}
+
+/* Windows / Front */
+.car-frame::before {
+  content: ""; position: absolute; top: 15px; left: 15%; width: 70%; height: 12px;
+  background: #333; border-radius: 20px; opacity: 0.7;
 }
 
 .seat {
@@ -80,55 +85,38 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   cursor: pointer;
-  transition: transform 0.1s;
 }
-
-.seat svg { width: 50px; height: 50px; fill: var(--seat-red); }
-.seat.driver svg { fill: var(--seat-blue); }
+.seat svg { width: 48px; height: 48px; fill: var(--seat-red); transition: fill 0.2s; }
+.seat.driver svg { fill: var(--seat-blue); cursor: default; }
 .seat.selected svg { fill: var(--seat-green); }
+.seat-num { position: absolute; top: 0; right: 2px; font-size: 11px; font-weight: 900; color: #444; }
 
-.seat-num {
-  position: absolute;
-  top: 0;
-  right: 5px;
-  font-size: 12px;
-  font-weight: bold;
-  color: #555;
-}
-
-.door-label {
-  grid-column: 3 / 5;
-  grid-row: 3 / 5;
-  border: 2px solid #aaa;
-  background: #d0d0d0;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #666;
-  margin: 5px;
+.door-block {
+  grid-column: 3 / 5; grid-row: 3 / 5;
+  background: #eee; border: 2px dashed #999; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #888; font-weight: bold; margin: 4px;
 }
 
-.footer-btn {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  padding: 20px;
-  background: white;
+/* Bottom Bar */
+.bottom-pay-bar {
+  position: fixed; bottom: 0; width: 100%;
+  background: white; padding: 15px 20px;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 10px;
 }
-.btn-exit {
-  background: var(--seat-red);
-  color: white;
-  width: 100%;
-  padding: 15px;
-  border-radius: 10px;
-  border: none;
-  font-size: 18px;
-  font-weight: bold;
+.summary-text { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; }
+.btn-pay {
+  background: var(--primary-yellow);
+  color: #000; border: none; padding: 16px; border-radius: 12px;
+  font-size: 18px; font-weight: bold; cursor: pointer; width: 100%;
 }
+
+/* Page 1 Specific */
+.welcome-card { background: white; width: 85%; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px; }
+.code-field { width: 80%; padding: 15px; font-size: 24px; text-align: center; border-radius: 12px; border: 1px solid #ddd; margin: 20px 0; }
 </style>
 </head>
 <body>
@@ -136,46 +124,59 @@ body {
 <div class="app-header">
   <div onclick="location.reload()" style="cursor:pointer">←</div>
   <div class="header-title">Taxi pay</div>
-  <div>✕</div>
+  <div style="font-weight: bold;">✕</div>
 </div>
 
 <div class="page active" id="p1">
-  <div class="entry-container">
-    <div class="welcome-box">
-      <div class="welcome-title">ሰላም, <span id="uname" class="name-color">USER</span> 👋</div>
-      <p>እንኳን ደህና መጡ! አሁን ከዚህ በታች ያለውን የአሽከርካሪ ኮድ በመጠቀም ታክሲ መቀላቀል ይችላሉ:: 👇</p>
-    </div>
-    <input type="text" id="code" class="code-input" placeholder="000000" maxlength="6">
-    <button class="btn-join" onclick="showCar()">ጉዞ ይቀላቀሉ</button>
+  <div class="welcome-card">
+    <div style="font-size: 22px; font-weight: 800;">ሰላም, <span id="user-name" style="color:var(--primary-yellow)">USER</span> 👋</div>
+    <p style="color:#666; font-size: 14px;">የአሽከርካሪ ኮድ በመጠቀም ታክሲ መቀላቀል ይችላሉ::</p>
   </div>
+  <input type="number" id="driver-code" class="code-field" placeholder="000000">
+  <button class="btn-pay" style="width: 85%;" onclick="goToCar()">ጉዞ ይቀላቀሉ</button>
 </div>
 
 <div class="page" id="p2">
-  <div class="car-body">
-    <div class="seat driver"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div></div>
-    <div class="seat" data-id="2"><span class="seat-num">2</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="1"><span class="seat-num">1</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-
-    <div class="seat" data-id="3"><span class="seat-num">3</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="4"><span class="seat-num">4</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div></div><div></div>
-
-    <div class="seat" data-id="5"><span class="seat-num">5</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="6"><span class="seat-num">6</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="door-label">Door</div>
-
-    <div class="seat" data-id="7"><span class="seat-num">7</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="8"><span class="seat-num">8</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-
-    <div class="seat" data-id="9"><span class="seat-num">9</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="10"><span class="seat-num">10</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="11"><span class="seat-num">11</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
-    <div class="seat" data-id="12"><span class="seat-num">12</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+  <div class="info-card">
+    <div class="route-row">
+        <span>ከ: <b>ቦሌ (Bole)</b></span>
+        <span>ወደ: <b>ፒያሳ (Piazza)</b></span>
+    </div>
+    <div class="price-input-row">
+        <span style="font-size: 14px; color:#444;">የአንድ ሰው ዋጋ (Birr):</span>
+        <input type="number" id="unit-price" value="15" oninput="updateTotal()">
+    </div>
   </div>
 
-  <div class="footer-btn">
-    <button class="btn-exit" onclick="confirmExit()">ጉዞ ውጡ</button>
+  <div class="car-frame">
+    <div class="seat driver"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div></div>
+    <div class="seat" data-num="2" onclick="toggleSeat(this)"><span class="seat-num">2</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="1" onclick="toggleSeat(this)"><span class="seat-num">1</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+
+    <div class="seat" data-num="3" onclick="toggleSeat(this)"><span class="seat-num">3</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="4" onclick="toggleSeat(this)"><span class="seat-num">4</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div></div><div></div>
+
+    <div class="seat" data-num="5" onclick="toggleSeat(this)"><span class="seat-num">5</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="6" onclick="toggleSeat(this)"><span class="seat-num">6</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="door-block">Door</div>
+
+    <div class="seat" data-num="7" onclick="toggleSeat(this)"><span class="seat-num">7</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="8" onclick="toggleSeat(this)"><span class="seat-num">8</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+
+    <div class="seat" data-num="9" onclick="toggleSeat(this)"><span class="seat-num">9</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="10" onclick="toggleSeat(this)"><span class="seat-num">10</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="11" onclick="toggleSeat(this)"><span class="seat-num">11</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-num="12" onclick="toggleSeat(this)"><span class="seat-num">12</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+  </div>
+
+  <div class="bottom-pay-bar">
+    <div class="summary-text">
+        <span>ወንበሮች: <span id="seat-count">0</span></span>
+        <span>ጠቅላላ ዋጋ: <span id="total-price">0</span> Birr</span>
+    </div>
+    <button class="btn-pay" onclick="processPayment()">ክፈሉ (Pay Now)</button>
   </div>
 </div>
 
@@ -183,33 +184,45 @@ body {
 const tg = window.Telegram.WebApp;
 tg.ready();
 
-// Set user name
-document.getElementById('uname').innerText = (tg.initDataUnsafe?.user?.first_name || "OMER").toUpperCase();
+// Set Telegram User Name
+document.getElementById('user-name').innerText = (tg.initDataUnsafe?.user?.first_name || "Guest").toUpperCase();
 
-function showCar() {
-  const code = document.getElementById('code').value;
-  if(code.length === 6) {
-    document.getElementById('p1').classList.remove('active');
-    document.getElementById('p2').classList.add('active');
-    tg.HapticFeedback.notificationOccurred('success');
-  } else {
-    tg.showAlert("Please enter 6 digit code");
-  }
+function goToCar() {
+    const code = document.getElementById('driver-code').value;
+    if(code.length >= 4) {
+        document.getElementById('p1').classList.remove('active');
+        document.getElementById('p2').classList.add('active');
+        tg.HapticFeedback.notificationOccurred('success');
+    } else {
+        tg.showAlert("ትክክለኛ ኮድ ያስገቡ");
+    }
 }
 
-// Seat Click Handler
-document.querySelectorAll('.seat:not(.driver)').forEach(seat => {
-  seat.addEventListener('click', () => {
-    document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
-    seat.classList.add('selected');
-    tg.HapticFeedback.impactOccurred('light');
-  });
-});
+function toggleSeat(element) {
+    // Toggle the 'selected' class
+    element.classList.toggle('selected');
+    tg.HapticFeedback.impactOccurred('medium');
+    updateTotal();
+}
 
-function confirmExit() {
-    tg.showConfirm("Are you sure you want to exit the trip?", (ok) => {
-        if(ok) tg.close();
-    });
+function updateTotal() {
+    const selectedSeats = document.querySelectorAll('.seat.selected').length;
+    const unitPrice = document.getElementById('unit-price').value || 0;
+    const total = selectedSeats * unitPrice;
+    
+    document.getElementById('seat-count').innerText = selectedSeats;
+    document.getElementById('total-price').innerText = total;
+}
+
+function processPayment() {
+    const total = document.getElementById('total-price').innerText;
+    if(total > 0) {
+        tg.showConfirm(`ጠቅላላ ክፍያ ${total} Birr ይሁን?`, (ok) => {
+            if(ok) tg.close();
+        });
+    } else {
+        tg.showAlert("እባክዎ መጀመሪያ ወንበር ይምረጡ");
+    }
 }
 </script>
 </body>
