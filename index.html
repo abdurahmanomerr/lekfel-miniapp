@@ -1,253 +1,207 @@
 <!DOCTYPE html>
-<html lang="am">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Taxi Pay – Lekfel</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Taxi Mini App</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-:root{
-  --yellow:#FFC533;
-  --dark:#1f2937;
-  --gray:#6b7280;
-  --light:#f3f4f6;
-  --card:#ffffff;
-}
-
-*{
-  box-sizing:border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
 body{
   margin:0;
-  background:#fff;
-  color:#111;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background:#f9fafb;
 }
 
-/* HEADER */
-.header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:14px 16px;
-  border-bottom:1px solid #eee;
-}
+/* ---------- PAGE HANDLING ---------- */
+.page{ display:none; padding:16px; }
+.page.active{ display:block; }
 
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:600;
-}
-
-.icon{
-  font-size:18px;
-}
-
-/* CONTENT */
-.container{
-  padding:16px;
-}
-
-/* CARD */
+/* ---------- PAGE 1 ---------- */
 .card{
-  background:var(--card);
-  border-radius:14px;
-  padding:16px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
-  margin-bottom:22px;
-}
-
-.card h3{
-  margin:0 0 8px 0;
-  font-size:20px;
-}
-
-.card p{
-  margin:0;
-  color:#374151;
-  line-height:1.6;
-}
-
-/* INPUT */
-.label{
-  font-size:14px;
-  color:#374151;
-  margin-bottom:6px;
-}
-
-.input-row{
-  display:flex;
-  gap:10px;
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
 
 input{
-  flex:1;
+  width:100%;
   padding:14px;
-  border-radius:10px;
+  font-size:18px;
+  text-align:center;
+  letter-spacing:6px;
+  border-radius:12px;
   border:1px solid #ddd;
-  font-size:16px;
+  margin-top:12px;
 }
 
-.qr{
-  width:48px;
-  height:48px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:20px;
-}
-
-/* BUTTON */
 button{
   width:100%;
-  background:var(--yellow);
+  padding:16px;
+  margin-top:16px;
   border:none;
   border-radius:14px;
-  padding:16px;
+  background:#fbbf24;
   font-size:18px;
   font-weight:600;
-  margin-top:16px;
   cursor:pointer;
 }
 
-/* LINK */
-.link{
-  margin-top:18px;
-  text-align:center;
-  color:#374151;
-  font-size:14px;
-  text-decoration:underline;
-}
-
-/* ===== TAXI SEAT SCREEN ===== */
-.taxi-screen{
-  background:#fbbf24;
-  padding:20px;
-}
-
-.phone{
-  background:#fff;
-  border-radius:26px;
-  padding:12px;
-  max-width:360px;
-  margin:auto;
-}
-
-.phone-header{
+/* ---------- TAXI ---------- */
+.taxi-wrapper{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:8px 4px;
-  font-weight:600;
+  justify-content:center;
+  margin-top:20px;
 }
 
 .taxi{
   background:#e5e7eb;
-  border-radius:16px;
-  padding:12px;
-  margin-top:10px;
+  border-radius:28px;
+  padding:16px;
+  width:320px;
 }
 
-.seats{
+/* FRONT */
+.front{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
 }
 
+/* MIDDLE */
+.middle{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+
+/* BACK */
+.back{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+/* SEAT */
 .seat{
-  background:#ef4444;
-  color:#fff;
+  height:48px;
   border-radius:10px;
-  height:50px;
+  background:#ef4444;
   display:flex;
   align-items:center;
   justify-content:center;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.seat.driver{
+  background:#6b7280;
+  cursor:default;
+}
+
+.seat.selected{
+  background:#22c55e;
+}
+
+/* TITLE */
+.title{
+  font-size:20px;
   font-weight:700;
 }
-
-.seat.free{
-  background:#3b82f6;
-}
-
-.driver{
-  grid-column:1/3;
-  background:#9ca3af;
-}
-
-/* SMALL POLISH */
-.center{
-  text-align:center;
+.sub{
+  color:#6b7280;
+  margin-top:4px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- JOIN TAXI SCREEN -->
-<div class="header">
-  <div class="header-left">
-    <span class="icon">←</span>
-    <span>Join a Taxi</span>
-  </div>
-  <span class="icon">☰</span>
-</div>
-
-<div class="container">
-
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
   <div class="card">
-    <h3>ሰላም, <span style="color:#f59e0b">OMER</span> 👋</h3>
-    <p>
-      እባክዎ የታክሲ መቀመጫ ኮድ ያስገቡ፤ ወይም QR ኮድ ይስካኑ። 👇
-    </p>
+    <div class="title">ሰላም, <span id="username">👋</span></div>
+    <div class="sub">Enter 6-digit taxi code</div>
+
+    <input id="codeInput" maxlength="6" placeholder="000000" />
+
+    <button onclick="goToSeats()">Join Taxi</button>
   </div>
-
-  <div class="label">የታክሲ ኮድ</div>
-  <div class="input-row">
-    <input placeholder="000000" maxlength="6">
-    <div class="qr">▣</div>
-  </div>
-
-  <button>ግባ ወደ ታክሲ</button>
-
-  <div class="link">ኮድ የለዎትም? ታክሲ ፈልግ</div>
-
 </div>
 
-<!-- TAXI PAY SEAT SCREEN -->
-<div class="taxi-screen">
-  <div class="phone">
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <div class="title">Select Your Seat</div>
+  <div class="sub">Tap any available seat</div>
 
-    <div class="phone-header">
-      <span>Taxi pay</span>
-      <span>✕</span>
-    </div>
-
-    <div class="center" style="font-size:14px;color:#374151;">
-      Megenagna → 22 <br>
-      <strong>10 ETB</strong>
-    </div>
-
+  <div class="taxi-wrapper">
     <div class="taxi">
-      <div class="seats">
-        <div class="seat driver">Driver</div>
-        <div class="seat">1</div>
-        <div class="seat">2</div>
-        <div class="seat">3</div>
-        <div class="seat">4</div>
-        <div class="seat">5</div>
-        <div class="seat">6</div>
-        <div class="seat">7</div>
-        <div class="seat">8</div>
-        <div class="seat">9</div>
-        <div class="seat">10</div>
-        <div class="seat">11</div>
-        <div class="seat">12</div>
-      </div>
-    </div>
 
+      <!-- FRONT -->
+      <div class="front">
+        <div class="seat driver">🚗</div>
+        <div class="seat" data-seat="1">1</div>
+        <div class="seat" data-seat="2">2</div>
+      </div>
+
+      <!-- MIDDLE -->
+      <div class="middle">
+        <div class="seat" data-seat="3">3</div>
+        <div class="seat" data-seat="4">4</div>
+        <div class="seat" data-seat="5">5</div>
+
+        <div class="seat" data-seat="6">6</div>
+        <div class="seat" data-seat="7">7</div>
+        <div class="seat" data-seat="8">8</div>
+      </div>
+
+      <!-- BACK -->
+      <div class="back">
+        <div class="seat" data-seat="9">9</div>
+        <div class="seat" data-seat="10">10</div>
+        <div class="seat" data-seat="11">11</div>
+        <div class="seat" data-seat="12">12</div>
+      </div>
+
+    </div>
   </div>
 </div>
+
+<script>
+/* ---------- TELEGRAM USER ---------- */
+const tg = window.Telegram.WebApp;
+tg.ready();
+
+const user = tg.initDataUnsafe?.user;
+document.getElementById("username").innerText =
+  user?.first_name || "Guest";
+
+/* ---------- PAGE SWITCH ---------- */
+function goToSeats(){
+  const code = document.getElementById("codeInput").value;
+  if(code.length === 6){
+    document.getElementById("page1").classList.remove("active");
+    document.getElementById("page2").classList.add("active");
+  }else{
+    alert("Enter 6-digit code");
+  }
+}
+
+/* ---------- SEAT CLICK ---------- */
+document.querySelectorAll(".seat:not(.driver)").forEach(seat=>{
+  seat.onclick = () => {
+    document.querySelectorAll(".seat").forEach(s=>s.classList.remove("selected"));
+    seat.classList.add("selected");
+
+    tg.HapticFeedback.impactOccurred("light");
+  };
+});
+</script>
+
+</body>
+</html>
