@@ -3,251 +3,214 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Taxi Pay Mini App</title>
-
+<title>Taxi Pay</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root {
   --primary-yellow: #fcc419;
-  --bg-gray: #f8f9fa;
-  --text-dark: #333;
+  --bg-white: #ffffff;
   --seat-red: #ff4d4d;
+  --seat-blue: #3b5998;
   --seat-green: #2ecc71;
+  --car-border: #888;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-gray);
-  color: var(--text-dark);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  font-family: -apple-system, sans-serif;
+  background-color: #f0f0f0;
   overflow: hidden;
 }
 
 /* Header */
-.header {
+.app-header {
+  background: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
-  background: #fff;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
 }
-.back-btn { font-size: 20px; cursor: pointer; }
-.header-title { font-weight: bold; font-size: 18px; }
+.header-title { font-weight: 600; font-size: 18px; flex-grow: 1; text-align: center; }
 
-/* Page Containers */
-.page {
-  display: none;
-  flex: 1;
-  padding: 20px;
-  flex-direction: column;
-  align-items: center;
-}
+/* Page Control */
+.page { display: none; height: calc(100vh - 50px); flex-direction: column; align-items: center; }
 .page.active { display: flex; }
 
 /* --- PAGE 1: ENTRY --- */
-.welcome-card {
-  background: white;
-  width: 90%;
-  border-radius: 20px;
-  padding: 30px 20px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  margin-top: 20px;
-}
-.welcome-text { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-.name-highlight { color: var(--primary-yellow); }
-.instruction { color: #666; line-height: 1.5; margin-bottom: 20px; }
+.entry-container { padding: 20px; text-align: center; width: 100%; box-sizing: border-box; }
+.welcome-box { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+.welcome-title { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+.name-color { color: var(--primary-yellow); }
+.code-input { width: 80%; padding: 15px; font-size: 24px; text-align: center; border-radius: 12px; border: 1px solid #ddd; margin: 15px 0; }
+.btn-join { background: var(--primary-yellow); width: 85%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; }
 
-.input-label { align-self: flex-start; margin-left: 10%; font-size: 14px; color: #888; margin-top: 20px; }
-.code-input {
-  width: 80%;
-  padding: 15px;
-  font-size: 24px;
-  text-align: center;
-  letter-spacing: 8px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
+/* --- PAGE 2: CAR LAYOUT --- */
+.car-body {
+  background: #e0e0e0;
+  width: 320px;
+  height: 80vh;
   margin-top: 10px;
-  outline: none;
-}
-.join-btn {
-  width: 85%;
-  background: var(--primary-yellow);
-  border: none;
-  padding: 18px;
-  border-radius: 15px;
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 25px;
-  cursor: pointer;
-}
-
-/* --- PAGE 2: SEAT SELECTION --- */
-.taxi-container {
-  background: #fff;
-  border: 3px solid #666;
-  border-radius: 40px 40px 10px 10px;
-  width: 280px;
-  padding: 20px;
+  border: 3px solid var(--car-border);
+  border-radius: 60px 60px 20px 20px;
   position: relative;
+  padding: 60px 10px 20px 10px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 10px;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+/* Glass Windshield Effect */
+.car-body::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 10%;
+  width: 80%;
+  height: 15px;
+  background: #555;
+  border-radius: 10px;
 }
 
 .seat {
-  width: 45px;
-  height: 45px;
-  background-color: var(--seat-red);
-  border-radius: 8px;
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: bold;
   cursor: pointer;
-  position: relative;
+  transition: transform 0.1s;
 }
-.seat::after { /* Seat headrest look */
-  content: '';
+
+.seat svg { width: 50px; height: 50px; fill: var(--seat-red); }
+.seat.driver svg { fill: var(--seat-blue); }
+.seat.selected svg { fill: var(--seat-green); }
+
+.seat-num {
   position: absolute;
-  top: -5px;
-  width: 25px;
-  height: 8px;
-  background: inherit;
-  border-radius: 4px;
+  top: 0;
+  right: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #555;
 }
 
-.seat.driver { background: #3498db; cursor: default; }
-.seat.selected { background: var(--seat-green); transform: scale(1.1); }
-
-/* Layout Grid Specifics */
-.door-space {
+.door-label {
   grid-column: 3 / 5;
   grid-row: 3 / 5;
-  border: 2px dashed #ccc;
+  border: 2px solid #aaa;
+  background: #d0d0d0;
   border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #aaa;
   font-weight: bold;
-  font-size: 12px;
+  color: #666;
+  margin: 5px;
 }
 
 .footer-btn {
   position: fixed;
-  bottom: 20px;
-  width: 90%;
-  background: #ff4d4d;
+  bottom: 0;
+  width: 100%;
+  padding: 20px;
+  background: white;
+}
+.btn-exit {
+  background: var(--seat-red);
   color: white;
+  width: 100%;
   padding: 15px;
   border-radius: 10px;
-  text-align: center;
+  border: none;
+  font-size: 18px;
   font-weight: bold;
-  left: 5%;
 }
-
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="back-btn" onclick="goBack()">←</div>
+<div class="app-header">
+  <div onclick="location.reload()" style="cursor:pointer">←</div>
   <div class="header-title">Taxi pay</div>
-  <div style="font-size: 20px;">✕</div>
+  <div>✕</div>
 </div>
 
-<div class="page active" id="page1">
-  <div class="welcome-card">
-    <div class="welcome-text">ሰላም, <span id="user-name" class="name-highlight">USER</span> 👋</div>
-    <p class="instruction">እንኳን ደህና መጡ! አሁን ከዚህ በታች ያለውን የአሽከርካሪ ኮድ በመጠቀም ታክሲ መቀላቀል ይችላሉ:: 👇</p>
+<div class="page active" id="p1">
+  <div class="entry-container">
+    <div class="welcome-box">
+      <div class="welcome-title">ሰላም, <span id="uname" class="name-color">USER</span> 👋</div>
+      <p>እንኳን ደህና መጡ! አሁን ከዚህ በታች ያለውን የአሽከርካሪ ኮድ በመጠቀም ታክሲ መቀላቀል ይችላሉ:: 👇</p>
+    </div>
+    <input type="text" id="code" class="code-input" placeholder="000000" maxlength="6">
+    <button class="btn-join" onclick="showCar()">ጉዞ ይቀላቀሉ</button>
   </div>
-  
-  <div class="input-label">የአሽከርካሪ ኮድ ያስገቡ</div>
-  <input type="text" id="taxiCode" class="code-input" placeholder="000000" maxlength="6" inputmode="numeric">
-  
-  <button class="join-btn" onclick="validateAndGo()">ጉዞ ይቀላቀሉ</button>
 </div>
 
-<div class="page" id="page2">
-  <div class="taxi-container">
-    <div class="seat driver">🚗</div>
-    <div></div> <div class="seat" data-num="2">2</div>
-    <div class="seat" data-num="1">1</div>
+<div class="page" id="p2">
+  <div class="car-body">
+    <div class="seat driver"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div></div>
+    <div class="seat" data-id="2"><span class="seat-num">2</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="1"><span class="seat-num">1</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
 
-    <div class="seat" data-num="3">3</div>
-    <div class="seat" data-num="4">4</div>
+    <div class="seat" data-id="3"><span class="seat-num">3</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="4"><span class="seat-num">4</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
     <div></div><div></div>
 
-    <div class="seat" data-num="5">5</div>
-    <div class="seat" data-num="6">6</div>
-    <div class="door-space">Door</div>
+    <div class="seat" data-id="5"><span class="seat-num">5</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="6"><span class="seat-num">6</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="door-label">Door</div>
 
-    <div class="seat" data-num="7">7</div>
-    <div class="seat" data-num="8">8</div>
+    <div class="seat" data-id="7"><span class="seat-num">7</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="8"><span class="seat-num">8</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
 
-    <div class="seat" data-num="9">9</div>
-    <div class="seat" data-num="10">10</div>
-    <div class="seat" data-num="11">11</div>
-    <div class="seat" data-num="12">12</div>
+    <div class="seat" data-id="9"><span class="seat-num">9</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="10"><span class="seat-num">10</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="11"><span class="seat-num">11</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
+    <div class="seat" data-id="12"><span class="seat-num">12</span><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2zM7 5h10v3H7V5zM4 10h16v6H4v-6z"/></svg></div>
   </div>
 
-  <div class="footer-btn" onclick="confirmSeat()">ጉዞ ውጡ</div>
+  <div class="footer-btn">
+    <button class="btn-exit" onclick="confirmExit()">ጉዞ ውጡ</button>
+  </div>
 </div>
 
 <script>
-  const tg = window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
+const tg = window.Telegram.WebApp;
+tg.ready();
 
-  // Set Telegram Username
-  const username = tg.initDataUnsafe?.user?.first_name || "Guest";
-  document.getElementById('user-name').innerText = username.toUpperCase();
+// Set user name
+document.getElementById('uname').innerText = (tg.initDataUnsafe?.user?.first_name || "OMER").toUpperCase();
 
-  function validateAndGo() {
-    const code = document.getElementById('taxiCode').value;
-    if(code.length === 6) {
-      document.getElementById('page1').classList.remove('active');
-      document.getElementById('page2').classList.add('active');
-      tg.HapticFeedback.notificationOccurred('success');
-    } else {
-      tg.showAlert("እባክዎ ትክክለኛ 6 አሃዝ ኮድ ያስገቡ");
-    }
+function showCar() {
+  const code = document.getElementById('code').value;
+  if(code.length === 6) {
+    document.getElementById('p1').classList.remove('active');
+    document.getElementById('p2').classList.add('active');
+    tg.HapticFeedback.notificationOccurred('success');
+  } else {
+    tg.showAlert("Please enter 6 digit code");
   }
+}
 
-  function goBack() {
-    document.getElementById('page2').classList.remove('active');
-    document.getElementById('page1').classList.add('active');
-  }
-
-  // Seat Selection Logic
-  document.querySelectorAll('.seat:not(.driver)').forEach(seat => {
-    seat.addEventListener('click', () => {
-      // Unselect others
-      document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
-      // Select current
-      seat.classList.add('selected');
-      tg.HapticFeedback.impactOccurred('medium');
-    });
+// Seat Click Handler
+document.querySelectorAll('.seat:not(.driver)').forEach(seat => {
+  seat.addEventListener('click', () => {
+    document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+    seat.classList.add('selected');
+    tg.HapticFeedback.impactOccurred('light');
   });
+});
 
-  function confirmSeat() {
-    const selected = document.querySelector('.seat.selected');
-    if(selected) {
-      tg.showConfirm(`Seat ${selected.dataset.num} confirm?`, (ok) => {
+function confirmExit() {
+    tg.showConfirm("Are you sure you want to exit the trip?", (ok) => {
         if(ok) tg.close();
-      });
-    } else {
-      tg.showAlert("እባክዎ መጀመሪያ ወንበር ይምረጡ");
-    }
-  }
+    });
+}
 </script>
-
 </body>
 </html>
